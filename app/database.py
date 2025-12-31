@@ -1,27 +1,44 @@
-from sqlmodel import create_engine, Session, SQLModel
 import os
+from sqlmodel import create_engine,Session,SQLModel
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
+
 load_dotenv()
 
-# ---------- PostgreSQL Config ----------
-DB_USER = os.getenv("DB_USER");
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASE_URL = (
-    f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}"
-    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+if not DATABASE_URL:
+    # Local development fallback
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_PORT = os.getenv("DB_PORT", "5432")
+    DB_NAME = os.getenv("DB_NAME")
 
-# ---------- Engine ----------
+    missing = [k for k, v in {
+        "DB_USER": DB_USER,
+        "DB_PASSWORD": DB_PASSWORD,
+        "DB_NAME": DB_NAME,
+    }.items() if not v]
+
+    if missing:
+        raise RuntimeError(f"Missing env vars: {missing}")
+
+    DATABASE_URL = (
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}"
+        f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
+
+# Optional: Render sometimes provides postgres:// instead of postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+
 engine = create_engine(
     DATABASE_URL,
-    echo=True,          
     pool_size=10,
-    max_overflow=20
+    max_overflow=20,
 )
+
 
 # ---------- Session Dependency ----------
 def get_session():
