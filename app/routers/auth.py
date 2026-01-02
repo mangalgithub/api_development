@@ -84,7 +84,7 @@ async def get_current_active_user(
 
 @router.get("/")
 def testing():
-    return {"message":"ok"}
+    return {"message":"hello world"}
 
 @router.post("/login",response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],session:SessionDep):
