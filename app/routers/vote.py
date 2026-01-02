@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException, status,Query,APIRouter
 from sqlmodel import Session
 from app.database import get_session
-from app.models import VoteCreate,User,Vote,PostWithVotes,Post
+from app.models import VoteCreate,Users,Vote,PostWithVotes,Post
 from sqlalchemy import func,select
 from .auth import get_current_active_user
 
@@ -14,7 +14,7 @@ router=APIRouter(
 )
 
 @router.post("/")
-def upvote(payload:VoteCreate,current_user: Annotated[User, Depends(get_current_active_user)],session:SessionDep):
+def upvote(payload:VoteCreate,current_user: Annotated[Users, Depends(get_current_active_user)],session:SessionDep):
     vote = session.exec(
         select(Vote).where(
             (Vote.post_id == payload.post_id) &
@@ -43,7 +43,7 @@ def upvote(payload:VoteCreate,current_user: Annotated[User, Depends(get_current_
 def get_post_with_votes(
     post_id: int,
     session: SessionDep,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Users, Depends(get_current_active_user)],
 ):
     
     post = session.get(Post, post_id)

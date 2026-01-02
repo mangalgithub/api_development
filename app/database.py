@@ -5,28 +5,31 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = os.getenv("DATABASE_URL")
 
-if not DATABASE_URL:
+# print("DB_HOST =", os.getenv("DB_HOST"))
+# print("DATABASE_URL =", os.getenv("DATABASE_URL"))
+
+# if not DATABASE_URL:
     # Local development fallback
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = os.getenv("DB_PORT", "5432")
-    DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST", "postgres")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME")
 
-    missing = [k for k, v in {
-        "DB_USER": DB_USER,
-        "DB_PASSWORD": DB_PASSWORD,
-        "DB_NAME": DB_NAME,
-    }.items() if not v]
+    # missing = [k for k, v in {
+    #     "DB_USER": DB_USER,
+    #     "DB_PASSWORD": DB_PASSWORD,
+    #     "DB_NAME": DB_NAME,
+    # }.items() if not v]
 
-    if missing:
-        raise RuntimeError(f"Missing env vars: {missing}")
+    # if missing:
+    #     raise RuntimeError(f"Missing env vars: {missing}")
 
-    DATABASE_URL = (
+DATABASE_URL = (
         f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}"
-        f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"{DB_HOST}@:{DB_PORT}/{DB_NAME}"
     )
 
 # Optional: Render sometimes provides postgres:// instead of postgresql://

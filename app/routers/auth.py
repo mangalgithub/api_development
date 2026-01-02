@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import APIRouter,Depends,HTTPException,status
-from app.models import CreateUser,User
+from app.models import CreateUser,Users
 from sqlmodel import Session,select
 from app.database import get_session
 from typing import Annotated
@@ -35,9 +35,9 @@ def verify_password(plain_password, hashed_password_from_db):
     hashed_password_from_db_bytes = hashed_password_from_db.encode('utf-8')
     return bcrypt.checkpw(password_byte_enc, hashed_password_from_db_bytes)
 
-def authenticate_user(user_credentials:User,session:SessionDep):
+def authenticate_user(user_credentials:Users,session:SessionDep):
     user = session.exec(
-        select(User).where(User.email == user_credentials.email)
+        select(Users).where(Users.email == user_credentials.email)
     ).first()
     if not user:
         return False
@@ -70,14 +70,14 @@ async def get_current_user(session:SessionDep,token: str = Depends(oauth2_scheme
     except InvalidTokenError:
         raise credentials_exception
     user = session.exec(
-        select(User).where(User.email == token_data.email)
+        select(Users).where(Users.email == token_data.email)
     ).first()
     if user is None:
         raise credentials_exception
     return user
 
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[Users, Depends(get_current_user)],
 ):
     return current_user
 
@@ -89,7 +89,7 @@ def testing():
 @router.post("/login",response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],session:SessionDep):
     user = session.exec(
-        select(User).where(User.email == form_data.username)
+        select(Users).where(Users.email == form_data.username)
     ).first()
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
@@ -112,6 +112,6 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],sessi
     
 @router.get("/me")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[Users, Depends(get_current_active_user)],
 ):
     return current_user

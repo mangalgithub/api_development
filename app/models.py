@@ -6,7 +6,7 @@ class PostUpdate(SQLModel):
     title: str | None = None
     content: str | None = None
 
-class User(SQLModel,table=True):
+class Users(SQLModel,table=True):
     id:int | None=Field(default=None,primary_key=True)
     email:str=Field(unique=True,nullable=False) 
     password:str=Field(nullable=False)
@@ -33,7 +33,7 @@ class Token(SQLModel):
 class TokenData(SQLModel):
     email: EmailStr | None = None
 
-class UserInDB(User):
+class UserInDB(Users):
     hashed_password: str
 
 class Vote(SQLModel,table=True):

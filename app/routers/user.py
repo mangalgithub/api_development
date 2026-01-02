@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException, Query,APIRouter
 from sqlmodel import Session
 from app.database import get_session
-from app.models import User,CreateUser,UserResponse
+from app.models import Users,CreateUser,UserResponse
 import bcrypt
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -27,7 +27,7 @@ def verify_password(plain_password, hashed_password_from_db):
 
 @router.post("/",response_model=UserResponse)
 def create_user(payload:CreateUser,session:SessionDep):
-    db_user=User(
+    db_user=Users(
         email=payload.email,
         password=hash_password(payload.password)
     )
@@ -38,5 +38,5 @@ def create_user(payload:CreateUser,session:SessionDep):
 
 @router.get('/{id}',response_model=UserResponse)
 def get_user(id:int,session:SessionDep):
-    user=session.get(User,id)
+    user=session.get(Users,id)
     return user
